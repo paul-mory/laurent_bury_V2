@@ -1,0 +1,184 @@
+@if (!auth.ready()) {
+  <p class="status wrap">Chargement…</p>
+} @else if (!auth.user()) {
+  <section class="login wrap">
+    <p class="kicker">Espace privé</p>
+    <h1>Administration</h1>
+    <p class="lede">Gestion de la liste des traductions.</p>
+    <form class="card" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+      @if (auth.mode() === 'firebase') {
+        <label>
+          E-mail
+          <input type="email" formControlName="email" autocomplete="username" required />
+        </label>
+      }
+      <label>
+        Mot de passe
+        <input type="password" formControlName="password" autocomplete="current-password" />
+      </label>
+      @if (loginError()) {
+        <p class="field-error" role="alert">{{ loginError() }}</p>
+      }
+      <button class="btn" type="submit" [disabled]="loggingIn()">
+        {{ loggingIn() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+      @if (auth.mode() === 'local') {
+        <p class="hint">Mode local : le mot de passe est celui de <code>environment.ts</code>.</p>
+      }
+    </form>
+  </section>
+} @else {
+  <header class="page-head wrap">
+    <div>
+      <p class="kicker">{{ auth.user() }}</p>
+      <h1>Administration</h1>
+    </div>
+    <div class="head-actions">
+      <a class="btn ghost" routerLink="/">Voir le site</a>
+      <button class="btn ghost" type="button" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="wrap admin">
+    @if (livres.remoteWarning()) {
+      <p class="banner">{{ livres.remoteWarning() }}</p>
+    }
+    @if (auth.mode() === 'local') {
+      <p class="banner">
+        Les modifications restent dans ce navigateur. Pour les publier, renseignez Firebase dans
+        <code>src/environments/environment.ts</code>, puis importez le catalogue.
+      </p>
+    } @else if (livres.source() === 'local') {
+      <p class="banner">Firestore ne contient pas encore d’ouvrages. Le catalogue affiché est celui d’origine.</p>
+      <button class="btn" type="button" (click)="publish()" [disabled]="saving()">
+        Importer les {{ livres.livres().length }} ouvrages
+      </button>
+    }
+
+    @if (notice()) {
+      <p class="banner" [class.is-error]="noticeError()" role="status">{{ notice() }}</p>
+    }
+
+    <div class="admin-bar">
+      <p>{{ rows().length }} {{ rows().length > 1 ? 'livres' : 'livre' }}</p>
+      <div class="head-actions">
+        @if (livres.editedLocally() && livres.source() === 'local') {
+          <button class="btn ghost" type="button" (click)="resetLocal()">Revenir au catalogue d’origine</button>
+        }
+        <button class="btn" type="button" (click)="openCreate()">Ajouter un livre</button>
+      </div>
+    </div>
+
+    <div class="search">
+      <label class="sr-only" for="filtre-admin">Filtrer</label>
+      <input
+        id="filtre-admin"
+        type="search"
+        placeholder="Filtrer la liste…"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+      />
+    </div>
+
+    @if (!rows().length) {
+      <p class="status">Aucun livre trouvé.</p>
+    } @else {
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">Image</th>
+              <th scope="col"><button type="button" (click)="toggleSort('titre')">Titre</button></th>
+              <th scope="col"><button type="button" (click)="toggleSort('auteur')">Auteur</button></th>
+              <th scope="col"><button type="button" (click)="toggleSort('date')">Date</button></th>
+              <th scope="col"><button type="button" (click)="toggleSort('editeur')">Éditeur</button></th>
+              <th scope="col"><button type="button" (click)="toggleSort('genre')">Genre</button></th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (livre of rows(); track livre.id) {
+              <tr>
+                <td class="cover-cell"><app-cover [src]="livre.image_url" [alt]="'Couverture de ' + livre.titre" /></td>
+                <td>{{ livre.titre }}</td>
+                <td>{{ livre.auteur || '—' }}</td>
+                <td>{{ livre.date || '—' }}</td>
+                <td>{{ livre.editeur || '—' }}</td>
+                <td>{{ livre.genre || '—' }}</td>
+                <td class="actions">
+                  <button class="btn ghost" type="button" (click)="openEdit(livre)">Modifier</button>
+                  @if (pendingDelete() === livre.id) {
+                    <button class="btn danger" type="button" (click)="remove(livre)">Confirmer</button>
+                    <button class="btn ghost" type="button" (click)="pendingDelete.set(null)">Annuler</button>
+                  } @else {
+                    <button class="btn danger" type="button" (click)="pendingDelete.set(livre.id)">Supprimer</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <dialog #dialog>
+    <form class="dialog-body" [formGroup]="form" (ngSubmit)="save()">
+      <h2>{{ editingId() ? 'Modifier le livre' : 'Ajouter un livre' }}</h2>
+      <div class="form-grid">
+        <label>
+          Titre
+          <input type="text" formControlName="titre" />
+        </label>
+        <label>
+          Auteur
+          <input type="text" formControlName="auteur" list="auteurs" />
+        </label>
+        <label>
+          Date
+          <input type="text" formControlName="date" placeholder="ex. janvier 2021" />
+        </label>
+        <label>
+          Éditeur
+          <input type="text" formControlName="editeur" list="editeurs" />
+        </label>
+        <label>
+          Genre
+          <input type="text" formControlName="genre" list="genres" />
+        </label>
+      </div>
+      <label>
+        URL de l’image
+        <input type="text" formControlName="image_url" />
+      </label>
+      <label>
+        Informations supplémentaires
+        <textarea formControlName="info_supplementaires" rows="3"></textarea>
+      </label>
+      @if (form.controls.titre.touched && form.controls.titre.invalid) {
+        <p class="field-error">Le titre est obligatoire.</p>
+      }
+      <div class="head-actions">
+        <button class="btn" type="submit" [disabled]="saving()">
+          {{ editingId() ? 'Enregistrer' : 'Ajouter le livre' }}
+        </button>
+        <button class="btn ghost" type="button" (click)="closeDialog()">Annuler</button>
+      </div>
+    </form>
+    <datalist id="genres">
+      @for (genre of genres(); track genre) {
+        <option [value]="genre"></option>
+      }
+    </datalist>
+    <datalist id="editeurs">
+      @for (editeur of editeurs(); track editeur) {
+        <option [value]="editeur"></option>
+      }
+    </datalist>
+    <datalist id="auteurs">
+      @for (auteur of auteurs(); track auteur) {
+        <option [value]="auteur"></option>
+      }
+    </datalist>
+  </dialog>
+}

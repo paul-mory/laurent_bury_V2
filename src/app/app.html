@@ -1,0 +1,42 @@
+<a class="skip" href="#contenu">Aller au contenu</a>
+<div class="site">
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="brand-name">Laurent Bury</span>
+        <span class="brand-role">Traducteur</span>
+      </a>
+      <button
+        class="menu-btn"
+        type="button"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="navigation"
+        (click)="menuOpen.set(!menuOpen())"
+      >
+        Menu
+      </button>
+      <nav id="navigation" [class.is-open]="menuOpen()" aria-label="Principal">
+        <a routerLink="/traduction" routerLinkActive="is-active">Traductions</a>
+        <a routerLink="/dernieres-parutions" routerLinkActive="is-active">Dernières parutions</a>
+        <a routerLink="/travaux-presse" routerLinkActive="is-active">Travaux presse</a>
+        <a routerLink="/cv-contact" routerLinkActive="is-active">CV / Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <router-outlet />
+  </main>
+
+  @if (showTop()) {
+    <button class="to-top" type="button" (click)="toTop()">Haut de page</button>
+  }
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Laurent Bury, traducteur littéraire</p>
+      <p><a href="mailto:bury.laurent@neuf.fr">bury.laurent&#64;neuf.fr</a></p>
+      <p>© {{ year }}</p>
+    </div>
+  </footer>
+</div>

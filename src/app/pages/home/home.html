@@ -1,0 +1,75 @@
+<section class="hero wrap">
+  <div class="letter">
+    <p class="kicker">Traduction littéraire</p>
+    <h1>Laurent Bury</h1>
+    <p class="role">Traducteur</p>
+    <p>
+      Bienvenue sur ce site où vous trouverez toutes les informations sur mon activité de traducteur, que
+      j’exerce depuis plus de trente ans.
+    </p>
+    <p>
+      Les textes que j’ai traduits sont présentés par maison d’édition ou par genre (classiques, romans
+      policiers, histoire, philosophie, etc.). Une page vous indique également les derniers titres parus ou à
+      paraître.
+    </p>
+    <p>Si vous souhaitez me joindre, la rubrique contact vous indiquera tous les moyens d’y parvenir.</p>
+    <p class="signature">À bientôt<br />Laurent Bury</p>
+  </div>
+  <figure class="portrait">
+    <img src="/portrait.jpg" alt="Portrait de Laurent Bury" />
+    <figcaption>Paris</figcaption>
+  </figure>
+</section>
+
+<section class="band" aria-label="Le catalogue en chiffres">
+  <div class="wrap band-inner">
+    <p class="stat">
+      <b>{{ loading() ? '—' : stats().livres }}</b>
+      <span>traductions</span>
+    </p>
+    <p class="stat">
+      <b>{{ loading() ? '—' : stats().editeurs }}</b>
+      <span>maisons d’édition</span>
+    </p>
+    <p class="stat">
+      <b>{{ loading() ? '—' : stats().genres }}</b>
+      <span>genres</span>
+    </p>
+  </div>
+</section>
+
+<section class="wrap shelf-section">
+  <div class="section-head">
+    <h2>Dernières parutions</h2>
+    <a routerLink="/dernieres-parutions">Tout voir</a>
+  </div>
+  @if (shelf().length) {
+    <div class="shelf">
+      @for (livre of shelf(); track livre.id) {
+        <a class="tome" routerLink="/dernieres-parutions">
+          <app-cover [src]="livre.image_url" [alt]="'Couverture de ' + livre.titre" />
+          <h3>{{ livre.titre }}</h3>
+          <p>{{ livre.auteur }}</p>
+        </a>
+      }
+    </div>
+  }
+</section>
+
+<section class="wrap path-grid">
+  <a class="path" routerLink="/traduction" [queryParams]="{ tri: 'genre' }">
+    <span class="kicker">Catalogue</span>
+    <strong>Traductions</strong>
+    <span>Par genre, auteur, éditeur ou date.</span>
+  </a>
+  <a class="path" routerLink="/dernieres-parutions">
+    <span class="kicker">Actualité</span>
+    <strong>Parutions</strong>
+    <span>Les titres des quatre dernières années.</span>
+  </a>
+  <a class="path" routerLink="/cv-contact">
+    <span class="kicker">Écrire</span>
+    <strong>CV / Contact</strong>
+    <span>Parcours, téléphone et adresses.</span>
+  </a>
+</section>

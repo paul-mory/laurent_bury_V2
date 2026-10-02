@@ -1,0 +1,49 @@
+<header class="page-head wrap">
+  <div>
+    <p class="kicker">Actualité</p>
+    <h1>Dernières parutions</h1>
+  </div>
+  <p class="lede">Les titres parus ou annoncés au cours des quatre dernières années.</p>
+</header>
+
+<div class="wrap">
+  @if (error()) {
+    <p class="banner" role="alert">{{ error() }}</p>
+  }
+  @if (loading()) {
+    <p class="status">Chargement du catalogue…</p>
+  } @else if (!years().length) {
+    <p class="status">Aucune parution récente trouvée.</p>
+  } @else {
+    @for (year of years(); track year.key) {
+      <section class="year-block">
+        <header>
+          <h2>{{ year.key }}</h2>
+          <p>{{ year.livres.length }} {{ year.livres.length > 1 ? 'ouvrages' : 'ouvrage' }}</p>
+        </header>
+        <div class="cover-grid">
+          @for (livre of year.livres; track livre.id) {
+            <article class="tome">
+              <app-cover [src]="livre.image_url" [alt]="'Couverture de ' + livre.titre" />
+              @if (livre.auteur) {
+                <p class="by">{{ livre.auteur }}</p>
+              }
+              <h3>{{ livre.titre }}</h3>
+              <p class="meta">
+                @if (livre.date) {
+                  <span>{{ livre.date }}</span>
+                }
+                @if (livre.editeur) {
+                  <span>{{ livre.editeur }}</span>
+                }
+              </p>
+              @if (livre.info_supplementaires) {
+                <p class="note">{{ livre.info_supplementaires }}</p>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

@@ -1,0 +1,113 @@
+<header class="page-head wrap">
+  <div>
+    <p class="kicker">Catalogue</p>
+    <h1>Traductions</h1>
+  </div>
+  <p class="lede">
+    Les textes traduits, classés par genre, par auteur, par maison d’édition ou par date.
+  </p>
+</header>
+
+<div class="wrap">
+  @if (error()) {
+    <p class="banner" role="alert">{{ error() }}</p>
+  }
+  @if (loading()) {
+    <p class="status">Chargement du catalogue…</p>
+  } @else {
+    <div class="search">
+      <label class="sr-only" for="recherche">Rechercher</label>
+      <input
+        id="recherche"
+        type="search"
+        placeholder="Un titre, un auteur, un éditeur…"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+      />
+      @if (query()) {
+        <button type="button" class="text-btn" (click)="query.set('')">Effacer</button>
+      }
+    </div>
+    <p class="count">
+      {{ total() }} {{ total() > 1 ? 'livres' : 'livre' }}
+      @if (query()) {
+        <span>pour « {{ query() }} »</span>
+      }
+    </p>
+
+    <div class="tri" role="tablist" aria-label="Classement">
+      @for (item of tris; track item.id) {
+        <button type="button" [class.is-on]="tri() === item.id" (click)="setTri(item.id)">
+          {{ item.label }}
+        </button>
+      }
+    </div>
+
+    @if (tri() === 'genre') {
+      <nav class="index" aria-label="Genres">
+        @for (group of grouped(); track group.key) {
+          <button type="button" (click)="scrollTo(group.anchor)">{{ group.key }}</button>
+        }
+      </nav>
+    }
+
+    @if (tri() === 'auteur' || tri() === 'date') {
+      <nav class="index" [attr.aria-label]="tri() === 'auteur' ? 'Initiales du nom' : 'Années'">
+        <button type="button" [class.is-on]="selection() === ''" (click)="selection.set('')">Tous</button>
+        @for (item of chips(); track item) {
+          <button type="button" [class.is-on]="selection() === item" (click)="selection.set(item)">{{ item }}</button>
+        }
+      </nav>
+    }
+
+    @if (tri() === 'editeur') {
+      <label class="jump">
+        Aller à une maison
+        <select (change)="jump($event)">
+          <option value="">Choisir</option>
+          @for (group of grouped(); track group.key) {
+            <option [value]="group.anchor">{{ group.key }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (!groups().length) {
+      <p class="status">Aucune traduction trouvée.</p>
+    }
+
+    @for (group of groups(); track group.key) {
+      <section class="group" [id]="group.anchor">
+        <h2>
+          {{ group.key }}
+          <span>{{ group.livres.length }} {{ group.livres.length > 1 ? 'livres' : 'livre' }}</span>
+        </h2>
+        @for (livre of group.livres; track livre.id) {
+          <article class="book">
+            <app-cover [src]="livre.image_url" [alt]="'Couverture de ' + livre.titre" />
+            <div>
+              @if (tri() !== 'auteur' && livre.auteur) {
+                <p class="by">{{ livre.auteur }}</p>
+              }
+              <h3>{{ livre.titre }}</h3>
+              <p class="meta">
+                @if (livre.date) {
+                  <span>{{ livre.date }}</span>
+                }
+                @if (tri() !== 'editeur' && livre.editeur) {
+                  <span>{{ livre.editeur }}</span>
+                }
+                @if (tri() !== 'genre' && livre.genre) {
+                  <span>{{ livre.genre }}</span>
+                }
+              </p>
+              @if (livre.info_supplementaires) {
+                <p class="note">{{ livre.info_supplementaires }}</p>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    }
+  }
+</div>
