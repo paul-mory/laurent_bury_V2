@@ -36,7 +36,7 @@ export const routes: Routes = [
   {
     path: 'travaux-presse',
     component: PressePage,
-    title: 'Travaux de presse | Laurent Bury',
+    title: 'Travaux pour la presse | Laurent Bury',
     data: {
       description:
         'Critiques, dossiers de presse et traductions de Laurent Bury pour l’opéra, la presse et le disque.',
