@@ -6,13 +6,8 @@
         <span class="brand-name">Laurent Bury</span>
         <span class="brand-role">Traducteur</span>
       </a>
-      <button
-        class="menu-btn"
-        type="button"
-        [attr.aria-expanded]="menuOpen()"
-        aria-controls="navigation"
-        (click)="menuOpen.set(!menuOpen())"
-      >
+      <button class="menu-btn" type="button" [attr.aria-expanded]="menuOpen()" aria-controls="navigation"
+        (click)="menuOpen.set(!menuOpen())">
         Menu
       </button>
       <nav id="navigation" [class.is-open]="menuOpen()" aria-label="Principal">
@@ -29,13 +24,13 @@
   </main>
 
   @if (showTop()) {
-    <button class="to-top" type="button" (click)="toTop()">Haut de page</button>
+  <button class="to-top" type="button" (click)="toTop()">Haut de page</button>
   }
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
       <p>Laurent Bury, traducteur littéraire</p>
-      <p><a href="mailto:bury.laurent@neuf.fr">bury.laurent&#64;neuf.fr</a></p>
+      <p><a href="mailto:bury.laurent@neuf.fr">bury.laurent&#64;neuf.fr </a></p>
       <p>© {{ year }}</p>
     </div>
   </footer>
